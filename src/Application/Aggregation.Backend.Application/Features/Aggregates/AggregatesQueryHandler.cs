@@ -6,45 +6,35 @@ using System.Text.Json;
 
 namespace Aggregation.Backend.Application.Features.Aggregates
 {
-    public class AggregatesQueryHandler(IEnumerable<IExternalApiService> services) : IRequestHandler<AggregatesQuery, string>
+    public class AggregatesQueryHandler(IEnumerable<IExternalApiService> services) : IRequestHandler<AggregatesQuery, IList<Dictionary<string, string>>>
     {
-        public async Task<string> Handle(AggregatesQuery request, CancellationToken cancellationToken)
+        public async Task<IList<Dictionary<string, string>>> Handle(AggregatesQuery request, CancellationToken cancellationToken)
         {
-            var tasks = new List<Task<IList<AggregateResponse>>>();
+            var tasks = new List<Task<IList<Dictionary<string,string>>>>();
 
             foreach (var service in services)
             {
                 tasks.Add(service.ListAsync(request.Category, cancellationToken));
             }
 
-            var results = await Task.WhenAll(tasks);
+            var taskResults = await Task.WhenAll(tasks);
             
-            IEnumerable<AggregateResponse> allData = results.SelectMany(r => r).ToList();
+            var result = taskResults.SelectMany(r => r).ToList();
 
             if (!string.IsNullOrEmpty(request.FilterBy))
             {
                 var filter = request.FilterBy.Split('=');
-                allData = filter[0] switch
-                {
-                    "author" => allData.Where(s => s.Author.Equals(filter[1], StringComparison.OrdinalIgnoreCase)),
-                    "title" => allData.Where(s => s.Title.Equals(filter[1], StringComparison.OrdinalIgnoreCase)),
-                    "date" => allData.Where(s => s.Date == DateTime.ParseExact( filter[1],"yyyy-MM-ddTHH:mm:ss.ffffffZ",CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal)),
-                    _ => allData
-                };
+                result = result.Where(s => s.TryGetValue(filter[0],out var value) && value == filter[1]).ToList();
             }
 
-            if (!string.IsNullOrEmpty(request.SortBy))
+            if (!string.IsNullOrEmpty(request.SortBy) && result.All(s=>s.TryGetValue(request.SortBy,out _)))
             {
-                allData = request.SortBy switch
-                {
-                    "author" => request.Asc ? allData.OrderBy(s => s.Author) : allData.OrderByDescending(s => s.Author),
-                    "title" => request.Asc ? allData.OrderBy(s => s.Title) : allData.OrderByDescending(s => s.Title),
-                    "date" => request.Asc ? allData.OrderBy(s => s.Date) : allData.OrderByDescending(s => s.Date),
-                    _ => allData
-                };
+                result = request.Asc ? 
+                    result.OrderBy(s => s[request.SortBy]).ToList()
+                    : result.OrderByDescending(s => s[request.SortBy]).ToList();
             }
 
-            return JsonSerializer.Serialize(allData);
+            return result;
         }
     }
 }

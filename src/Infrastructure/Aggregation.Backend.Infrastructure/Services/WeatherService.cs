@@ -5,9 +5,9 @@ namespace Aggregation.Backend.Infrastructure.Services
 {
     public class WeatherService : IExternalApiService
     {
-        public async Task<IList<AggregateResponse>> ListAsync(string category,CancellationToken cancellationToken)
+        public async Task<IList<Dictionary<string,string>>> ListAsync(string category,CancellationToken cancellationToken)
         {
-            var result = new List<AggregateResponse>();
+            var result = new List<Dictionary<string, string>>();
             return result;
         }
     }

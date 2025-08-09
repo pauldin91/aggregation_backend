@@ -1,9 +1,7 @@
 ﻿using Aggregation.Backend.Application.Interfaces;
-using Aggregation.Backend.Domain.Dtos.Aggregates;
 using Aggregation.Backend.Infrastructure.Options;
 using Microsoft.Extensions.Configuration;
-using NewsAPI.Models;
-using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace Aggregation.Backend.Infrastructure.Services
 {
@@ -12,14 +10,34 @@ namespace Aggregation.Backend.Infrastructure.Services
         private readonly IHttpClientWrapper<NewsOptions> _httpClientWrapper = httpClientWrapper;
         private readonly NewsOptions options = ConfigurationBinder.Get<NewsOptions>(configuration.GetRequiredSection(typeof(NewsOptions).Name));
 
-        public async Task<IList<AggregateResponse>> ListAsync(string category, CancellationToken cancellationToken)
+        public async Task<IList<Dictionary<string, string>>> ListAsync(string category, CancellationToken cancellationToken)
         {
             var queryString = $"q={category}&page=1&pageSize=100";
             var relativePath = string.Join("?", options.ListUri, queryString);
             var response = await _httpClientWrapper.GetAsync(relativePath, cancellationToken);
-            var result = JsonConvert.DeserializeObject<ArticlesResult>(response);
 
-            return result.Articles.Select(s => new AggregateResponse(s.Author,s.Title, s.Content,s.PublishedAt)).ToList();
+            var result = ParseFromJson(response);
+
+            return result;
+        }
+
+        public static List<Dictionary<string, string>> ParseFromJson(string json)
+        {
+            using JsonDocument doc = JsonDocument.Parse(json);
+            JsonElement itemsElement = doc.RootElement.GetProperty("articles");
+
+            var items = new List<Dictionary<string, string>>();
+
+            foreach (JsonElement item in itemsElement.EnumerateArray())
+            {
+                var dict = new Dictionary<string, string>();
+                foreach (JsonProperty prop in item.EnumerateObject())
+                {
+                    dict[prop.Name] = prop.Value.ToString();
+                }
+                items.Add(dict);
+            }
+            return items;
         }
     }
 }
