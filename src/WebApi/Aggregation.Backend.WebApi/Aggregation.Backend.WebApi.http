@@ -1,0 +1,6 @@
+@Aggregation.Backend.WebApi_HostAddress = http://localhost:5146
+
+GET {{Aggregation.Backend.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
