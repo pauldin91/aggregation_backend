@@ -1,9 +1,9 @@
 ﻿using Aggregation.Backend.Domain.Dtos.Statistics;
 using System.Collections.Concurrent;
 
-namespace Aggregation.Backend.WebApi.Stores
+namespace Aggregation.Backend.Infrastructure.Cache
 {
-    public class StatisticsCache
+    public class PerformanceStatisticsCache
     {
         private const string _fast = "Fast";
         private const string _average = "Average";
@@ -12,6 +12,7 @@ namespace Aggregation.Backend.WebApi.Stores
         private static long _accumulativeReponseTime = 0;
         private static readonly ConcurrentDictionary<string, Tuple<long, int>> _responseTimes = new();
         private static readonly object _lock = new();
+        public static IReadOnlyDictionary<string, Tuple<long, int>> ResponseTimes => _responseTimes.ToDictionary(s => s.Key, v => v.Value);
 
         public static int TotalRequestCount => _requestsCount;
 

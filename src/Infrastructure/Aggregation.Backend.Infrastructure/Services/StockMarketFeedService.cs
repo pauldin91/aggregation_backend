@@ -19,8 +19,13 @@ namespace Aggregation.Backend.Infrastructure.Services
             var response = await _httpClientWrapper.GetAsync(relativePath, cancellationToken);
             if (string.IsNullOrEmpty(response))
             {
-                return [];
+                return new List<Dictionary<string, string>>();
+            } else if (JsonConvert.DeserializeObject<InfoDto>(response) is not null) { 
+                return new List<Dictionary<string, string>>();
+
             }
+            
+
 
             var stockFeed = JsonConvert.DeserializeObject<StockMarketFeedDto>(response);
 

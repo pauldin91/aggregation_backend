@@ -1,10 +1,10 @@
 ﻿using Aggregation.Backend.Application.Interfaces;
+using Aggregation.Backend.Infrastructure.Hosted;
 using Aggregation.Backend.Infrastructure.Options;
 using Aggregation.Backend.Infrastructure.Services;
+using Hangfire;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Polly;
-using Polly.Wrap;
 using System.Net;
 
 namespace Aggregation.Backend.Infrastructure.Extensions
@@ -13,6 +13,10 @@ namespace Aggregation.Backend.Infrastructure.Extensions
     {
         public static IServiceCollection AddInfrastructureExtensions(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddHangfire(cfg => { cfg.UseInMemoryStorage(); });
+            services.AddHangfireServer();
+
+
             var allOptions = typeof(NewsOptions).Assembly.GetTypes()
                 .Where(s => s.IsAssignableTo(typeof(IHttpClientOptions)))
                 .ToList();
@@ -39,10 +43,9 @@ namespace Aggregation.Backend.Infrastructure.Extensions
             services.AddTransient<IExternalApiService, NewsService>();
             services.AddTransient<IExternalApiService, AirPollutionService>();
             services.AddTransient<IExternalApiService, StockMarketFeedService>();
+            services.AddHostedService<StatisticsAnalyzerService>();
 
             return services;
         }
-
-
     }
 }

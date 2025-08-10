@@ -1,4 +1,4 @@
-﻿using Aggregation.Backend.WebApi.Stores;
+﻿using Aggregation.Backend.Infrastructure.Cache;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Aggregation.Backend.WebApi.Controllers
@@ -10,7 +10,7 @@ namespace Aggregation.Backend.WebApi.Controllers
         [HttpGet("stats")]
         public async Task<IActionResult> GetRequestStatistics()
         {
-            return Ok(StatisticsCache.GetStats());
+            return Ok(PerformanceStatisticsCache.GetStats());
         }
     }
 }

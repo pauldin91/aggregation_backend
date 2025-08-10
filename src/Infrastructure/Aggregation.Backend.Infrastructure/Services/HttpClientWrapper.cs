@@ -1,6 +1,7 @@
 ﻿using Aggregation.Backend.Application.Interfaces;
+using Aggregation.Backend.Infrastructure.Cache;
 using Polly;
-using Polly.Wrap;
+using System.Diagnostics;
 using System.Net;
 
 namespace Aggregation.Backend.Infrastructure.Services
@@ -15,7 +16,12 @@ namespace Aggregation.Backend.Infrastructure.Services
         {
             var request = new HttpRequestMessage(HttpMethod.Get, uri);
 
-            var response = await combinedPolicy.ExecuteAsync(() => _httpClient.SendAsync(request));
+            var stopwatch = Stopwatch.StartNew();
+
+            var response = await combinedPolicy.ExecuteAsync(() => _httpClient.SendAsync(request, cancellationToken));
+
+            stopwatch.Stop();
+            ExternalApiRequestTimingCache.Record(_httpClient?.BaseAddress?.ToString(), stopwatch.ElapsedMilliseconds);
 
             var content = await response.Content.ReadAsStringAsync();
 
@@ -37,7 +43,6 @@ namespace Aggregation.Backend.Infrastructure.Services
                                 Content = new StringContent("")
                             }
                     );
-
         }
     }
 }

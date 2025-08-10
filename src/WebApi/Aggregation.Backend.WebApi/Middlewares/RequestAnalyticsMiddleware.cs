@@ -1,4 +1,4 @@
-﻿using Aggregation.Backend.WebApi.Stores;
+﻿using Aggregation.Backend.Infrastructure.Cache;
 using System.Diagnostics;
 
 namespace Aggregation.Backend.WebApi.Middlewares
@@ -17,8 +17,8 @@ namespace Aggregation.Backend.WebApi.Middlewares
             var stopwatch = Stopwatch.StartNew();
             await _next(context);
             stopwatch.Stop();
-            if(context.Request.Path.ToString().Contains("aggregates"))  
-                StatisticsCache.Record(stopwatch.ElapsedMilliseconds);
+            if (context.Request.Path.ToString().Contains("aggregates"))
+                PerformanceStatisticsCache.Record(stopwatch.ElapsedMilliseconds);
         }
     }
 }
