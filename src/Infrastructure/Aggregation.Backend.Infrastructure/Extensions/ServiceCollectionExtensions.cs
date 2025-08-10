@@ -1,11 +1,17 @@
 ﻿using Aggregation.Backend.Application.Interfaces;
 using Aggregation.Backend.Infrastructure.Cache;
+using Aggregation.Backend.Infrastructure.Helpers;
 using Aggregation.Backend.Infrastructure.Hosted;
 using Aggregation.Backend.Infrastructure.Options;
 using Aggregation.Backend.Infrastructure.Services;
 using Hangfire;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Linq;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 
 namespace Aggregation.Backend.Infrastructure.Extensions
 {
@@ -15,6 +21,49 @@ namespace Aggregation.Backend.Infrastructure.Extensions
         {
             services.AddHangfire(cfg => { cfg.UseInMemoryStorage(); });
             services.AddHangfireServer();
+            services.Configure<StatisticsAnalyzerServiceOptions>(configuration.GetSection(nameof(StatisticsAnalyzerServiceOptions)));
+            services.Configure<JwtOptions>(configuration.GetSection(nameof(JwtOptions)));
+
+            var jwtOptions = new JwtOptions();
+            configuration.Bind(nameof(JwtOptions), jwtOptions);
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = jwtOptions.Issuer,
+                        ValidAudience = jwtOptions.Audience,
+                        RequireSignedTokens = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SecretKey)),
+                    };
+
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnTokenValidated = context =>
+                        {
+                            var handler = new JwtSecurityTokenHandler();
+
+                            var jwtToken = handler.ReadJwtToken(context.SecurityToken.UnsafeToString());
+
+
+                            if (!string.Equals(jwtToken.Header.Alg, "HS256", StringComparison.OrdinalIgnoreCase))
+                            {
+                                context.Fail("Invalid token algorithm");
+                            }
+
+
+                            return Task.CompletedTask;
+                        }
+                    };
+                });
 
             var allOptions = typeof(NewsOptions).Assembly.GetTypes()
                 .Where(s => s.IsAssignableTo(typeof(IHttpClientOptions)))
@@ -30,8 +79,7 @@ namespace Aggregation.Backend.Infrastructure.Extensions
                     .First(m => m.Name == "Configure" && m.GetParameters().Length == 2)
                     .MakeGenericMethod(type);
 
-                configureMethod.Invoke(null, new object[]{ services, configuration.GetSection(type.Name) });
-
+                configureMethod.Invoke(null, new object[] { services, configuration.GetSection(type.Name) });
 
                 services.AddHttpClient(type.Name, client =>
                 {
@@ -43,13 +91,15 @@ namespace Aggregation.Backend.Infrastructure.Extensions
 
                 services.Add(new ServiceDescriptor(ifc, impl, ServiceLifetime.Singleton));
             }
-            services.Configure<StatisticsAnalyzerServiceOptions>(configuration.GetSection(nameof(StatisticsAnalyzerServiceOptions)));
+
             services.AddTransient<IExternalApiService, NewsService>();
             services.AddTransient<IExternalApiService, AirPollutionService>();
             services.AddTransient<IExternalApiService, StockMarketFeedService>();
             services.AddHostedService<StatisticsAnalyzerService>();
+            services.AddScoped<TokenGenerator>();
             services.AddSingleton<ExternalApiRequestTimingCache>();
             services.AddSingleton<PerformanceStatisticsCache>();
+            services.AddSingleton<LoginStore>();
 
             return services;
         }

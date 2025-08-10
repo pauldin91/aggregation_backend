@@ -1,7 +1,9 @@
 ﻿using Aggregation.Backend.Domain.Constants;
 using Aggregation.Backend.Domain.Dtos.Statistics;
 using Aggregation.Backend.Infrastructure.Cache;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 
 namespace Aggregation.Backend.WebApi.Controllers
 {
