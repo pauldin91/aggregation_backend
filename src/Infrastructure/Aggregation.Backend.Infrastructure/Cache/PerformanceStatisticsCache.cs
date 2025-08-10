@@ -1,10 +1,12 @@
 ﻿using Aggregation.Backend.Domain.Constants;
 using Aggregation.Backend.Domain.Dtos.Statistics;
+using Aggregation.Backend.Infrastructure.Options;
+using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
 
 namespace Aggregation.Backend.Infrastructure.Cache
 {
-    public class PerformanceStatisticsCache
+    public class PerformanceStatisticsCache(IOptions<BucketOptions> bucketOptions)
     {
         private static int _requestCount = 0;
         private static long _accumulativeReponseTime = 0;
@@ -35,10 +37,11 @@ namespace Aggregation.Backend.Infrastructure.Cache
 
             string key = durationMs switch
             {
-                < 100 => Buckets.Fast,
-                <= 200 => Buckets.Average,
-                _ => Buckets.Slow,
+                var fast when fast < bucketOptions.Value.FastUpperLimit => Buckets.Fast,
+                var avg when avg <= bucketOptions.Value.AverageUpperLimit => Buckets.Average,
+                _ => Buckets.Slow
             };
+
             _responseTimes.AddOrUpdate(key,
                 Tuple.Create(durationMs, 1),
                 (id, existing) => Tuple.Create(existing.Item1 + durationMs, existing.Item2 + 1)

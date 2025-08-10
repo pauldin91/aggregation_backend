@@ -1,4 +1,5 @@
 ﻿using Aggregation.Backend.Domain.Constants;
+using Aggregation.Backend.WebApi.Policies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.OpenApi.Models;
@@ -60,10 +61,11 @@ namespace Aggregation.Backend.WebApi.Extensions
             services.AddOutputCache(s =>
             {
                 s.DefaultExpirationTimeSpan = TimeSpan.FromMinutes(10);
-                s.AddPolicy(Policies.AggregatesCachePolicy, builder =>
-                {
-                    builder.SetVaryByQuery(Policies.KeywordQueryParam, Policies.FilterQueryParam, Policies.SortQueryParam, Policies.SortTypeQueryParam);
-                });
+                s.AddPolicy(Domain.Constants.Policies.AggregatesCachePolicy, builder =>
+
+                     builder.AddPolicy<AuthenticatedCachePolicy>()
+                     .SetVaryByQuery(Domain.Constants.Policies.KeywordQueryParam, Domain.Constants.Policies.FilterQueryParam, Domain.Constants.Policies.SortQueryParam, Domain.Constants.Policies.SortTypeQueryParam)
+                 ,true);
             });
 
             return services;

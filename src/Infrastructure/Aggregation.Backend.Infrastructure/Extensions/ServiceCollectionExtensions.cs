@@ -21,8 +21,7 @@ namespace Aggregation.Backend.Infrastructure.Extensions
         {
             services.AddHangfire(cfg => { cfg.UseInMemoryStorage(); });
             services.AddHangfireServer();
-            services.Configure<StatisticsAnalyzerServiceOptions>(configuration.GetSection(nameof(StatisticsAnalyzerServiceOptions)));
-            services.Configure<JwtOptions>(configuration.GetSection(nameof(JwtOptions)));
+            
 
             var jwtOptions = new JwtOptions();
             configuration.Bind(nameof(JwtOptions), jwtOptions);
@@ -91,7 +90,9 @@ namespace Aggregation.Backend.Infrastructure.Extensions
 
                 services.Add(new ServiceDescriptor(ifc, impl, ServiceLifetime.Singleton));
             }
-
+            services.Configure<StatisticsAnalyzerServiceOptions>(configuration.GetSection(nameof(StatisticsAnalyzerServiceOptions)));
+            services.Configure<JwtOptions>(configuration.GetSection(nameof(JwtOptions)));
+            services.Configure<BucketOptions>(configuration.GetSection(nameof(BucketOptions)));
             services.AddTransient<IExternalApiService, NewsService>();
             services.AddTransient<IExternalApiService, AirPollutionService>();
             services.AddTransient<IExternalApiService, StockMarketFeedService>();

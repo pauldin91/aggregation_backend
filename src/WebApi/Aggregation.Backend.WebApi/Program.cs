@@ -23,15 +23,16 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
+
 app.UseMiddleware<RequestAnalyticsMiddleware>();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseHttpsRedirection();
-app.UseOutputCache();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseOutputCache();
 app.MapControllers();
 
 app.Run();

@@ -2,12 +2,12 @@
 using Aggregation.Backend.Domain.Constants;
 using Aggregation.Backend.Domain.Dtos.Aggregates;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 
 namespace Aggregation.Backend.WebApi.Controllers
 {
-    
     [ApiController]
     public class AggregateController : ControllerBase
     {
@@ -30,7 +30,7 @@ namespace Aggregation.Backend.WebApi.Controllers
         /// <param name="keyword">
         /// Required keyword used to search across sources. This is the main term used to retrieve relevant content.
         /// Specifically for Pollution External Api search the keyword reflects to the states of Greece and must one of the following:
-        /// Attica, Central Greece, Central Macedonia, Crete, East Macedonia and Thrace, Epirus, Ionian Islands, North Aegean, Peloponnese, South Aegean, Thessaly, West Greece, West Macedonia
+        /// <c> Attica, Central Greece, Central Macedonia, Crete, East Macedonia and Thrace, Epirus, Ionian Islands, North Aegean, Peloponnese, South Aegean, Thessaly, West Greece, West Macedonia </c>
         /// </param>
         /// <param name="filterBy">
         /// Optional filter to narrow down results. Use the format <c>FieldName=Value</c> to specify filtering criteria.
@@ -59,7 +59,7 @@ namespace Aggregation.Backend.WebApi.Controllers
         [ProducesResponseType(typeof(List<AggregatedResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [OutputCache(PolicyName = Policies.AggregatesCachePolicy)]
+        [OutputCache(PolicyName = Domain.Constants.Policies.AggregatesCachePolicy)]
         public async Task<IActionResult> GetNewsAsync([FromQuery] string keyword, [FromQuery] string? filterBy, [FromQuery] string? orderBy, CancellationToken cancellationToken, [FromQuery] bool asc = true)
         {
             var result = await _mediator.Send(new AggregatesQuery(keyword, filterBy, orderBy, asc), cancellationToken);
