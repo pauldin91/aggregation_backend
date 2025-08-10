@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 namespace Aggregation.Backend.Domain.Dtos.External.News
 {
     public class ArticleDto : IMappedDto
-    { 
+    {
         [JsonProperty("source")]
         public SourceDto Source { get; set; }
 
@@ -40,9 +40,12 @@ namespace Aggregation.Backend.Domain.Dtos.External.News
                 {nameof(PublishedAt),PublishedAt},
                 {nameof(Content),Content },
             };
-
-            foreach (var item in Source.ToMap()) {
-                map.Add(nameof(Source) + "." +item.Key, item.Value);
+            if (Source is not null)
+            {
+                foreach (var item in Source.ToMap())
+                {
+                    map.Add(nameof(Source) + "." + item.Key, item.Value);
+                }
             }
             return map;
         }

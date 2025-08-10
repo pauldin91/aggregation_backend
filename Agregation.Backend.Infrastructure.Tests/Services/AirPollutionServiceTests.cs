@@ -23,7 +23,8 @@ namespace Agregation.Backend.Infrastructure.Tests.Services
             {
                 ApiKey = "test-key",
                 ListUri = "list",
-                GetUri = "get"
+                BaseUrl = "air",
+                GetUri = "get",
             };
 
             var optionsMock = new Mock<IOptions<AirPollutionOptions>>();
@@ -131,7 +132,7 @@ namespace Agregation.Backend.Infrastructure.Tests.Services
         public async Task ListAsync_WhenInitialResponseIsEmpty_ReturnsEmptyList()
         {
             // Arrange
-            var category = "Attica";
+            var category = "invalid";
             var cancellationToken = CancellationToken.None;
 
             _httpClientMock

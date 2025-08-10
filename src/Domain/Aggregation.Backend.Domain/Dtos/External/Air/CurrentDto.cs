@@ -14,14 +14,19 @@ namespace Aggregation.Backend.Domain.Dtos.External.Air
         public Dictionary<string, object> ToMap()
         {
             var map = new Dictionary<string, object>();
-
-            foreach (var item in Pollution.ToMap())
+            if (Pollution is not null)
             {
-                map.Add(nameof(Pollution) + "." + item.Key, item.Value);
+                foreach (var item in Pollution.ToMap())
+                {
+                    map.Add(nameof(Pollution) + "." + item.Key, item.Value);
+                }
             }
-            foreach (var item in Weather.ToMap())
+            if (Weather is not null)
             {
-                map.Add(nameof(Weather) + "." + item.Key, item.Value);
+                foreach (var item in Weather.ToMap())
+                {
+                    map.Add(nameof(Weather) + "." + item.Key, item.Value);
+                }
             }
 
             return map;

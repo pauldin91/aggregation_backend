@@ -14,9 +14,6 @@ namespace Aggregation.Backend.Domain.Dtos.External.StockMarket
         [JsonProperty("time_published")]
         public string TimePublished { get; set; }
 
-        [JsonProperty("authors")]
-        public List<string> Authors { get; set; }
-
         [JsonProperty("summary")]
         public string Summary { get; set; }
 
@@ -38,6 +35,9 @@ namespace Aggregation.Backend.Domain.Dtos.External.StockMarket
         [JsonProperty("overall_sentiment_label")]
         public string OverallSentimentLabel { get; set; }
 
+        [JsonProperty("authors")]
+        public List<string> Authors { get; set; }
+
         [JsonProperty("topics")]
         public List<TopicDto> Topics { get; set; }
 
@@ -51,7 +51,7 @@ namespace Aggregation.Backend.Domain.Dtos.External.StockMarket
                 { nameof(Title), Title },
                 { nameof(Url), Url },
                 { nameof(TimePublished), TimePublished },
-                { nameof(Authors), Authors },
+
                 { nameof(Summary), Summary },
                 { nameof(BannerImage), BannerImage },
                 { nameof(Source), Source },
@@ -59,10 +59,20 @@ namespace Aggregation.Backend.Domain.Dtos.External.StockMarket
                 { nameof(SourceDomain), SourceDomain },
                 { nameof(OverallSentimentScore), OverallSentimentScore },
                 { nameof(OverallSentimentLabel), OverallSentimentLabel },
-                { nameof(Topics), Topics.Select(s => s.ToMap()).ToList() },
-                { nameof(TickerSentiment), TickerSentiment.Select(s => s.ToMap()).ToList() }
             };
 
+            if (Authors is not null && Authors.Count > 0)
+            {
+                result.Add(nameof(Authors), Authors);
+            }
+            if (Topics is not null && Topics.Count > 0)
+            {
+                result.Add(nameof(Topics), Topics.Select(s => s.ToMap()).ToList());
+            }
+            if (TickerSentiment is not null && TickerSentiment.Count > 0)
+            {
+                result.Add(nameof(TickerSentiment), TickerSentiment.Select(s => s.ToMap()).ToList());
+            }
             return result;
         }
     }

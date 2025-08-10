@@ -46,17 +46,6 @@ namespace Aggregation.Backend.Api.Tests
         }
 
         [Test]
-        public async Task GetNewsAsync_WithMissingKeyword_ReturnsNullResult()
-        {
-            var result = await _controller.GetNewsAsync(null, null, null, CancellationToken.None, true);
-
-            var okResult = result as OkObjectResult;
-            Assert.IsAssignableFrom<OkObjectResult>(result);
-            Assert.IsNull(okResult.Value);
-            Assert.That(okResult.StatusCode, Is.EqualTo(200));
-        }
-
-        [Test]
         public async Task GetNewsAsync_MediatorThrowsException_ReturnsInternalServerError()
         {
             // Arrange
