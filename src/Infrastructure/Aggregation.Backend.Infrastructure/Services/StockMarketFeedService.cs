@@ -10,23 +10,20 @@ namespace Aggregation.Backend.Infrastructure.Services
     {
         private readonly IHttpClientWrapper<StockMarketFeedOptions> _httpClientWrapper = httpClientWrapper;
 
-        public async Task<IList<Dictionary<string, string>>> ListAsync(string category, CancellationToken cancellationToken)
+        public async Task<IList<Dictionary<string, object>>> ListAsync(string category, CancellationToken cancellationToken)
         {
             var queryString = $"function=NEWS_SENTIMENT&tickers={category}&apikey={options.Value.ApiKey}";
             var relativePath = string.Join("?", options.Value.ListUri, queryString);
             var response = await _httpClientWrapper.GetAsync(relativePath, cancellationToken);
-            if (string.IsNullOrEmpty(response))
+
+            if (string.IsNullOrEmpty(response) || (JsonConvert.DeserializeObject<InfoDto>(response) is not null) )
             {
-                return new List<Dictionary<string, string>>();
-            }
-            else if (JsonConvert.DeserializeObject<InfoDto>(response) is not null)
-            {
-                return new List<Dictionary<string, string>>();
+                return new List<Dictionary<string, object>>();
             }
 
             var stockFeed = JsonConvert.DeserializeObject<StockMarketFeedDto>(response);
 
-            var result = stockFeed?.Feed.Select(s => s.ToMap()).ToList() ?? new List<Dictionary<string, string>>();
+            var result = stockFeed?.Feed.Select(s => s.ToMap()).ToList() ?? new List<Dictionary<string, object>>();
 
             return result;
         }

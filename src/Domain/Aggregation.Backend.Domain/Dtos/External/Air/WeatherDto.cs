@@ -29,20 +29,18 @@ namespace Aggregation.Backend.Domain.Dtos.External.Air
         [JsonProperty("heat_index")]
         public int HeatIndex { get; set; }
 
-        public Dictionary<string, string> ToMap()
+        public Dictionary<string, object> ToMap()
         {
-            var map = new Dictionary<string, string> {
-                { nameof(Ts),Ts.ToString("O")},
+            return new Dictionary<string, object> {
+                { nameof(Ts),Ts},
                 { nameof(Ic),Ic},
-                { nameof(Hu),Hu.ToString()},
-                { nameof(Pr),Pr.ToString()},
-                { nameof(Tp),Tp.ToString()},
-                { nameof(Wd),Wd.ToString()},
-                { nameof(Ws),Ws.ToString()},
-                { nameof(HeatIndex),HeatIndex.ToString()},
+                { nameof(Hu),Hu},
+                { nameof(Pr),Pr},
+                { nameof(Tp),Tp},
+                { nameof(Wd),Wd},
+                { nameof(Ws),Ws},
+                { nameof(HeatIndex),HeatIndex},
             };
-
-            return map;
 
         }
     }

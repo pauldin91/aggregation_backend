@@ -10,7 +10,7 @@ namespace Aggregation.Backend.Infrastructure.Services
     {
         private readonly IHttpClientWrapper<AirPollutionOptions> _httpClientWrapper = httpClientWrapper;
 
-        public async Task<IList<Dictionary<string, string>>> ListAsync(string category, CancellationToken cancellationToken)
+        public async Task<IList<Dictionary<string, object>>> ListAsync(string category, CancellationToken cancellationToken)
         {
             var queryString = $"state={category}&country=Greece&key={options.Value.ApiKey}";
             var relativePath = string.Join("?", options.Value.ListUri, queryString);
@@ -25,7 +25,7 @@ namespace Aggregation.Backend.Infrastructure.Services
 
             var json = JsonConvert.SerializeObject(cities?.Cities ?? new List<NameOnlyDto>());
 
-            var tasks = new List<Task<Dictionary<string, string>>>();
+            var tasks = new List<Task<Dictionary<string, object>>>();
             foreach (var item in cities?.Cities ?? Enumerable.Empty<NameOnlyDto>())
             {
                 var cityName = item.City;
@@ -37,10 +37,10 @@ namespace Aggregation.Backend.Infrastructure.Services
                     var cityResponse = await _httpClientWrapper.GetAsync(relativePathPerCity, cancellationToken);
                     if (string.IsNullOrEmpty(cityResponse))
                     {
-                        return new Dictionary<string, string>();
+                        return new Dictionary<string, object>();
                     }
                     var city = JsonConvert.DeserializeObject<CityDto>(cityResponse);
-                    var result = city?.Data?.ToMap() ?? new Dictionary<string, string>();
+                    var result = city?.Data?.ToMap() ?? new Dictionary<string, object>();
                     return result;
                 }));
             }

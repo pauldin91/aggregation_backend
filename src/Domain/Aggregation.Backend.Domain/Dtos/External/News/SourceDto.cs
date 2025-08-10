@@ -11,9 +11,9 @@ namespace Aggregation.Backend.Domain.Dtos.External.News
         [JsonProperty("name")]
         public string Name { get; set; }
 
-        public Dictionary<string, string> ToMap()
+        public Dictionary<string, object> ToMap()
         {
-            return new Dictionary<string, string> {
+            return new Dictionary<string, object> {
                 {nameof(Id),Id },
                 {nameof(Name),Name },
             };

@@ -11,14 +11,13 @@ namespace Aggregation.Backend.Domain.Dtos.External.Air
         [JsonProperty("coordinates")]
         public List<double> Coordinates { get; set; }
 
-        public Dictionary<string, string> ToMap()
+        public Dictionary<string, object> ToMap()
         {
-            var map = new Dictionary<string, string> {
+            return  new Dictionary<string, object> {
                 { nameof(Type), Type },
-                { nameof(Coordinates), string.Format("lon={0},lat={1}", Coordinates[0],Coordinates[1])},
+                { nameof(Coordinates), Coordinates},
             };
 
-            return map;
         }
     }
 }

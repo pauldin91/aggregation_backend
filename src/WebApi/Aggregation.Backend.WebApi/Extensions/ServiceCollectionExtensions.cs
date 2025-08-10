@@ -6,6 +6,7 @@ namespace Aggregation.Backend.WebApi.Extensions
     {
         public static IServiceCollection AddWebApiExtensions(this IServiceCollection services)
         {
+
             services.AddOutputCache(s =>
             {
                 s.DefaultExpirationTimeSpan = TimeSpan.FromMinutes(10);

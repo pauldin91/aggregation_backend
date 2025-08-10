@@ -3,11 +3,10 @@ using Newtonsoft.Json;
 
 namespace Aggregation.Backend.Domain.Dtos.External.Air
 {
-    public class NameOnlyDto 
+    public class NameOnlyDto
     {
         [JsonProperty("city")]
         public string City { get; set; }
-
     }
 
     public class DataDto : NameOnlyDto, IMappedDto
@@ -24,21 +23,28 @@ namespace Aggregation.Backend.Domain.Dtos.External.Air
         [JsonProperty("current")]
         public CurrentDto Current { get; set; }
 
-        public Dictionary<string, string> ToMap()
+        public Dictionary<string, object> ToMap()
         {
-            var map = new Dictionary<string, string>
+            var map = new Dictionary<string, object>
             {
                 { nameof(City), City },
                 { nameof(State), State },
                 { nameof(Country), Country },
             };
-            foreach (var item in Location.ToMap())
+            if (Location is not null)
             {
-                map.Add(nameof(Location) + "." + item.Key, item.Value);
+                foreach (var item in Location.ToMap())
+                {
+                    map.Add(nameof(Location) + "." + item.Key, item.Value);
+                }
             }
-            foreach (var item in Current.ToMap())
+
+            if (Current is not null)
             {
-                map.Add(nameof(Current) + "." + item.Key, item.Value);
+                foreach (var item in Current.ToMap())
+                {
+                    map.Add(nameof(Current) + "." + item.Key, item.Value);
+                }
             }
             return map;
         }

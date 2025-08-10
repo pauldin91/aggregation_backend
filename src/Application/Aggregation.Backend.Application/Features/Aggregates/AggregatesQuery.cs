@@ -3,5 +3,5 @@ using MediatR;
 
 namespace Aggregation.Backend.Application.Features.Aggregates
 {
-    public record AggregatesQuery(string Category, string? FilterBy,  string? SortBy, bool Asc = true) : IRequest<IList<Dictionary<string, string>>>;
+    public record AggregatesQuery(string Category, string? FilterBy,  string? SortBy, bool Asc = true) : IRequest<IList<Dictionary<string, object>>>;
 }

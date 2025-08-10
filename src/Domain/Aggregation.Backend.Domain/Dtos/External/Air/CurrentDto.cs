@@ -11,9 +11,9 @@ namespace Aggregation.Backend.Domain.Dtos.External.Air
         [JsonProperty("weather")]
         public WeatherDto Weather { get; set; }
 
-        public Dictionary<string, string> ToMap()
+        public Dictionary<string, object> ToMap()
         {
-            var map = new Dictionary<string, string>();
+            var map = new Dictionary<string, object>();
 
             foreach (var item in Pollution.ToMap())
             {

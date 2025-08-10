@@ -21,18 +21,17 @@ namespace Aggregation.Backend.Domain.Dtos.External.Air
         [JsonProperty("maincn")]
         public string Maincn { get; set; }
 
-        public Dictionary<string, string> ToMap()
+        public Dictionary<string, object> ToMap()
         {
-            var map = new Dictionary<string, string> {
+            return  new Dictionary<string, object> {
 
-                { nameof(Ts), Ts.ToString("O") },
-                { nameof(Aqius), Aqius.ToString() },
+                { nameof(Ts), Ts },
+                { nameof(Aqius), Aqius },
                 { nameof(Mainus), Mainus },
-                { nameof(Aqicn), Aqicn.ToString()},
+                { nameof(Aqicn), Aqicn},
                 { nameof(Maincn), Maincn },
             };
 
-            return map;
         }
     }
 }

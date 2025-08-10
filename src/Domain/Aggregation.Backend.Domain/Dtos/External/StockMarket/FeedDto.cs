@@ -44,23 +44,26 @@ namespace Aggregation.Backend.Domain.Dtos.External.StockMarket
         [JsonProperty("ticker_sentiment")]
         public List<TickerSentimentDto> TickerSentiment { get; set; }
 
-        public Dictionary<string, string> ToMap()
+        public Dictionary<string, object> ToMap()
         {
-            var map = new Dictionary<string, string> {
-                { nameof(Title),Title},
-                { nameof(Url),Url},
-                { nameof(TimePublished),TimePublished},
-                { nameof(Authors),string.Join(",",Authors)},
-                { nameof(Summary),Summary},
-                { nameof(BannerImage),BannerImage},
-                { nameof(Source),Source},
-                { nameof(CategoryWithinSource),CategoryWithinSource},
-                { nameof(SourceDomain),SourceDomain},
-                { nameof(OverallSentimentScore),OverallSentimentScore.ToString()},
-                { nameof(OverallSentimentLabel),OverallSentimentLabel},
+            var result = new Dictionary<string, object>
+            {
+                { nameof(Title), Title },
+                { nameof(Url), Url },
+                { nameof(TimePublished), TimePublished },
+                { nameof(Authors), Authors },
+                { nameof(Summary), Summary },
+                { nameof(BannerImage), BannerImage },
+                { nameof(Source), Source },
+                { nameof(CategoryWithinSource), CategoryWithinSource },
+                { nameof(SourceDomain), SourceDomain },
+                { nameof(OverallSentimentScore), OverallSentimentScore },
+                { nameof(OverallSentimentLabel), OverallSentimentLabel },
+                { nameof(Topics), Topics.Select(s => s.ToMap()).ToList() },
+                { nameof(TickerSentiment), TickerSentiment.Select(s => s.ToMap()).ToList() }
             };
 
-            return map; 
+            return result;
         }
     }
 }

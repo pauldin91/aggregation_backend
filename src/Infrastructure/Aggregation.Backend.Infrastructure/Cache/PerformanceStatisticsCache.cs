@@ -45,9 +45,9 @@ namespace Aggregation.Backend.Infrastructure.Cache
             );
         }
 
-        public RequestStatistics GetStats()
+        public RequestStatisticsDto GetStats()
         {
-            var result = new RequestStatistics
+            var result = new RequestStatisticsDto
             {
                 AverageResponseTimeMs = AverageResponseTime,
                 TotalRequests = TotalRequestCount,

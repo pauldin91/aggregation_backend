@@ -1,6 +1,6 @@
 ﻿namespace Aggregation.Backend.Domain.Dtos.Statistics
 {
-    public class RequestStatistics
+    public class RequestStatisticsDto
     {
         public int TotalRequests { get; set; }
         public double AverageResponseTimeMs { get; set; }

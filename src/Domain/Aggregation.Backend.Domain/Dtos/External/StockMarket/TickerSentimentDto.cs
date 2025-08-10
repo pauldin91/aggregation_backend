@@ -1,8 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using Aggregation.Backend.Domain.Dtos.Interfaces;
+using Newtonsoft.Json;
 
 namespace Aggregation.Backend.Domain.Dtos.External.StockMarket
 {
-    public class TickerSentimentDto
+    public class TickerSentimentDto : IMappedDto
     {
         [JsonProperty("ticker")]
         public string Ticker { get; set; }
@@ -15,7 +16,13 @@ namespace Aggregation.Backend.Domain.Dtos.External.StockMarket
 
         [JsonProperty("ticker_sentiment_label")]
         public string TickerSentimentLabel { get; set; }
+
+        public Dictionary<string, object> ToMap() => new()
+        {
+            { nameof(Ticker),Ticker},
+            { nameof(RelevanceScore),RelevanceScore},
+            { nameof(TickerSentimentScore),TickerSentimentScore},
+            { nameof(TickerSentimentLabel),TickerSentimentLabel},
+        };
     }
-
-
 }

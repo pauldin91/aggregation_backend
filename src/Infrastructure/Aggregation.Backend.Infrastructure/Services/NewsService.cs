@@ -10,7 +10,7 @@ namespace Aggregation.Backend.Infrastructure.Services
     {
         private readonly IHttpClientWrapper<NewsOptions> _httpClientWrapper = httpClientWrapper;
 
-        public async Task<IList<Dictionary<string, string>>> ListAsync(string category, CancellationToken cancellationToken)
+        public async Task<IList<Dictionary<string, object>>> ListAsync(string category, CancellationToken cancellationToken)
         {
             var queryString = $"q={category}&page=1&pageSize=100&apiKey={options.Value.ApiKey}";
             var relativePath = string.Join("?", options.Value.ListUri, queryString);
@@ -21,7 +21,7 @@ namespace Aggregation.Backend.Infrastructure.Services
             }
 
             var news = JsonConvert.DeserializeObject<ArticlesDto>(response);
-            var result = news?.Articles?.Select(s => s.ToMap()).ToList() ?? new List<Dictionary<string, string>>();
+            var result = news?.Articles?.Select(s => s.ToMap()).ToList() ?? new List<Dictionary<string, object>>();
 
             return result;
         }

@@ -2,6 +2,6 @@
 {
     public interface IMappedDto
     {
-        Dictionary<string, string> ToMap();
+        Dictionary<string, object> ToMap();
     }
 }

@@ -29,15 +29,15 @@ namespace Aggregation.Backend.Domain.Dtos.External.News
         [JsonProperty("content")]
         public string Content { get; set; }
 
-        public Dictionary<string, string> ToMap()
+        public Dictionary<string, object> ToMap()
         {
-            var map = new Dictionary<string, string> {
+            var map = new Dictionary<string, object> {
                 {nameof(Author),Author },
                 {nameof(Title),Title },
                 {nameof(Description),Description },
                 {nameof(Url),Url },
                 {nameof(UrlToImage),UrlToImage },
-                {nameof(PublishedAt),PublishedAt .ToString("O")},
+                {nameof(PublishedAt),PublishedAt},
                 {nameof(Content),Content },
             };
 
