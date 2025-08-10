@@ -9,7 +9,7 @@
                 s.DefaultExpirationTimeSpan = TimeSpan.FromMinutes(10);
                 s.AddPolicy("AggregatePolicy", builder =>
                 {
-                    builder.SetVaryByQuery("category", "filter", "orderBy", "asc");
+                    builder.SetVaryByQuery("keyword", "filter", "orderBy", "asc");
                 });
             });
 

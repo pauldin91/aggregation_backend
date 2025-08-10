@@ -3,7 +3,9 @@ using Aggregation.Backend.Infrastructure.Options;
 using Aggregation.Backend.Infrastructure.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
+using Polly;
+using Polly.Wrap;
+using System.Net;
 
 namespace Aggregation.Backend.Infrastructure.Extensions
 {
@@ -12,18 +14,22 @@ namespace Aggregation.Backend.Infrastructure.Extensions
         public static IServiceCollection AddInfrastructureExtensions(this IServiceCollection services, IConfiguration configuration)
         {
             var allOptions = typeof(NewsOptions).Assembly.GetTypes()
-                .Where(s => s.IsAssignableTo(typeof(IHttpClientOptions)) )
+                .Where(s => s.IsAssignableTo(typeof(IHttpClientOptions)))
                 .ToList();
 
             foreach (var type in allOptions)
             {
                 IHttpClientOptions options = (IHttpClientOptions)Activator.CreateInstance(type);
                 configuration.Bind(type.Name, options);
+                var fallbackResponse = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("")
+                };
+
                 services.AddHttpClient(type.Name, client =>
                 {
                     client.BaseAddress = new Uri(options.BaseUrl);
-                    client.DefaultRequestHeaders.Add("user-agent", "Aggregate-Api/0.1");
-                    client.DefaultRequestHeaders.Add("x-api-key", options.ApiKey);
+                    client.DefaultRequestHeaders.Add("user-agent", "AggregationApi/0.1");
                 });
                 var ifc = typeof(IHttpClientWrapper<>).MakeGenericType(type);
                 var impl = typeof(HttpClientWrapper<>).MakeGenericType(type);
@@ -31,10 +37,12 @@ namespace Aggregation.Backend.Infrastructure.Extensions
                 services.Add(new ServiceDescriptor(ifc, impl, ServiceLifetime.Singleton));
             }
             services.AddTransient<IExternalApiService, NewsService>();
-            services.AddTransient<IExternalApiService, MusicService>();
-            services.AddTransient<IExternalApiService, WeatherService>();
+            services.AddTransient<IExternalApiService, AirPollutionService>();
+            services.AddTransient<IExternalApiService, StockMarketFeedService>();
 
             return services;
         }
+
+
     }
 }

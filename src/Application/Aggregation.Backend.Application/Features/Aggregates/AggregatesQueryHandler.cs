@@ -1,8 +1,5 @@
 ﻿using Aggregation.Backend.Application.Interfaces;
-using Aggregation.Backend.Domain.Dtos.Aggregates;
 using MediatR;
-using System.Globalization;
-using System.Text.Json;
 
 namespace Aggregation.Backend.Application.Features.Aggregates
 {
@@ -10,7 +7,7 @@ namespace Aggregation.Backend.Application.Features.Aggregates
     {
         public async Task<IList<Dictionary<string, string>>> Handle(AggregatesQuery request, CancellationToken cancellationToken)
         {
-            var tasks = new List<Task<IList<Dictionary<string,string>>>>();
+            var tasks = new List<Task<IList<Dictionary<string, string>>>>();
 
             foreach (var service in services)
             {
@@ -18,18 +15,18 @@ namespace Aggregation.Backend.Application.Features.Aggregates
             }
 
             var taskResults = await Task.WhenAll(tasks);
-            
+
             var result = taskResults.SelectMany(r => r).ToList();
 
             if (!string.IsNullOrEmpty(request.FilterBy))
             {
                 var filter = request.FilterBy.Split('=');
-                result = result.Where(s => s.TryGetValue(filter[0],out var value) && value == filter[1]).ToList();
+                result = result.Where(s => s.TryGetValue(filter[0], out var value) && value == filter[1]).ToList();
             }
 
-            if (!string.IsNullOrEmpty(request.SortBy) && result.All(s=>s.TryGetValue(request.SortBy,out _)))
+            if (!string.IsNullOrEmpty(request.SortBy) && result.All(s => s.TryGetValue(request.SortBy, out _)))
             {
-                result = request.Asc ? 
+                result = request.Asc ?
                     result.OrderBy(s => s[request.SortBy]).ToList()
                     : result.OrderByDescending(s => s[request.SortBy]).ToList();
             }
