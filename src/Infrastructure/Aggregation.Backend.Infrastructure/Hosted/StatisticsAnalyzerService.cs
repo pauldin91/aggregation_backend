@@ -7,15 +7,16 @@ using Microsoft.Extensions.Options;
 
 namespace Aggregation.Backend.Infrastructure.Hosted
 {
-    public class StatisticsAnalyzerService(ILogger<StatisticsAnalyzerService> logger, IOptions<StatisticsAnalyzerServiceOptions> options) : IHostedService
+    public class StatisticsAnalyzerService(ILogger<StatisticsAnalyzerService> logger, IOptions<StatisticsAnalyzerServiceOptions> options, ExternalApiRequestTimingCache externalApiRequestTimingCache) : IHostedService
     {
         private readonly ILogger<StatisticsAnalyzerService> _logger = logger;
         private readonly IOptions<StatisticsAnalyzerServiceOptions> _options = options;
+        private readonly ExternalApiRequestTimingCache _externalApiRequestTimingCache = externalApiRequestTimingCache;
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-                RecurringJob.AddOrUpdate(nameof(StatisticsAnalyzerService), () => CollectPerformanceData(), _options.Value.CronExpression, new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
-            
+            RecurringJob.AddOrUpdate(nameof(StatisticsAnalyzerService), () => CollectPerformanceData(), _options.Value.CronExpression, new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
+
             return Task.CompletedTask;
         }
 
@@ -23,7 +24,7 @@ namespace Aggregation.Backend.Infrastructure.Hosted
         {
             try
             {
-                var responseTimes = ExternalApiRequestTimingCache.GetResponseTimes();
+                var responseTimes = _externalApiRequestTimingCache.GetResponseTimes();
                 foreach (var responseTime in responseTimes)
                 {
                     var avgPerformance = PerformanceStatisticsCache.AverageResponseTime;

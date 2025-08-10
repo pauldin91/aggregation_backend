@@ -28,7 +28,7 @@ namespace Aggregation.Backend.Infrastructure.Cache
             }
         }
 
-        public static void Record(long durationMs)
+        public void Record(long durationMs)
         {
             Interlocked.Increment(ref _requestCount);
             Interlocked.Add(ref _accumulativeReponseTime, durationMs);
@@ -45,7 +45,7 @@ namespace Aggregation.Backend.Infrastructure.Cache
             );
         }
 
-        public static RequestStatistics GetStats()
+        public RequestStatistics GetStats()
         {
             var result = new RequestStatistics
             {

@@ -6,11 +6,12 @@ using System.Net;
 
 namespace Aggregation.Backend.Infrastructure.Services
 {
-    public class HttpClientWrapper<T>(IHttpClientFactory httpClientFactory) : IHttpClientWrapper<T>
+    public class HttpClientWrapper<T>(IHttpClientFactory httpClientFactory, ExternalApiRequestTimingCache externalApiRequestTimingCache) : IHttpClientWrapper<T>
         where T : IHttpClientOptions, new()
     {
         private readonly HttpClient _httpClient = httpClientFactory.CreateClient(typeof(T).Name);
         private static AsyncPolicy<HttpResponseMessage> combinedPolicy = FallbackPolicy();
+        private readonly  ExternalApiRequestTimingCache _externalApiRequestTimingCache = externalApiRequestTimingCache;
 
         public async Task<string> GetAsync(string uri, CancellationToken cancellationToken)
         {
@@ -21,7 +22,7 @@ namespace Aggregation.Backend.Infrastructure.Services
             var response = await combinedPolicy.ExecuteAsync(() => _httpClient.SendAsync(request, cancellationToken));
 
             stopwatch.Stop();
-            ExternalApiRequestTimingCache.Record(_httpClient?.BaseAddress?.ToString(), stopwatch.ElapsedMilliseconds);
+            _externalApiRequestTimingCache.Record(_httpClient?.BaseAddress?.ToString(), stopwatch.ElapsedMilliseconds);
 
             var content = await response.Content.ReadAsStringAsync();
 

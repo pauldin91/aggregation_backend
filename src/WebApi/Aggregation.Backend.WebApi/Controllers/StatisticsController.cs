@@ -5,12 +5,12 @@ using Microsoft.AspNetCore.Mvc;
 namespace Aggregation.Backend.WebApi.Controllers
 {
     [ApiController]
-    public class StatisticsController : ControllerBase
+    public class StatisticsController(PerformanceStatisticsCache performanceStatisticsCache) : ControllerBase
     {
         [HttpGet(ApiEndpoints.GetStatisticsRoute)]
         public async Task<IActionResult> GetRequestStatistics()
         {
-            return Ok(PerformanceStatisticsCache.GetStats());
+            return Ok(performanceStatisticsCache.GetStats());
         }
     }
 }

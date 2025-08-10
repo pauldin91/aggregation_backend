@@ -1,4 +1,5 @@
 ﻿using Aggregation.Backend.Application.Interfaces;
+using Aggregation.Backend.Infrastructure.Cache;
 using Aggregation.Backend.Infrastructure.Hosted;
 using Aggregation.Backend.Infrastructure.Options;
 using Aggregation.Backend.Infrastructure.Services;
@@ -47,6 +48,8 @@ namespace Aggregation.Backend.Infrastructure.Extensions
             services.AddTransient<IExternalApiService, AirPollutionService>();
             services.AddTransient<IExternalApiService, StockMarketFeedService>();
             services.AddHostedService<StatisticsAnalyzerService>();
+            services.AddSingleton<ExternalApiRequestTimingCache>();
+            services.AddSingleton<PerformanceStatisticsCache>();
 
             return services;
         }

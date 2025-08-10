@@ -6,10 +6,12 @@ namespace Aggregation.Backend.WebApi.Middlewares
     public class RequestAnalyticsMiddleware
     {
         private readonly RequestDelegate _next;
+        private readonly PerformanceStatisticsCache _performanceStatisticsCache;
 
-        public RequestAnalyticsMiddleware(RequestDelegate next)
+        public RequestAnalyticsMiddleware(RequestDelegate next, PerformanceStatisticsCache performanceStatisticsCache)
         {
             _next = next;
+            _performanceStatisticsCache = performanceStatisticsCache;
         }
 
         public async Task Invoke(HttpContext context)
@@ -18,7 +20,7 @@ namespace Aggregation.Backend.WebApi.Middlewares
             await _next(context);
             stopwatch.Stop();
             if (context.Request.Path.ToString().Contains("aggregates"))
-                PerformanceStatisticsCache.Record(stopwatch.ElapsedMilliseconds);
+                _performanceStatisticsCache.Record(stopwatch.ElapsedMilliseconds);
         }
     }
 }
