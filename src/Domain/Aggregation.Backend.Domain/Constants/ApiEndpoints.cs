@@ -4,7 +4,10 @@
     {
         public const string Api = "api";
         public const string Version = "1";
-        public const string GetAggrgatesRoute = $"{Api}/v{Version}/aggregates";
-        public const string GetStatisticsRoute = $"{Api}/v{Version}/statistics";
+        public const string Aggregates = "aggregates";
+        public const string Statistics = "statistics";
+        public const string GetAggrgatesRoute = $"{Api}/v{Version}/{Aggregates}";
+        public const string GetStatisticsRoute = $"{Api}/v{Version}/{Statistics}";
+
     }
 }

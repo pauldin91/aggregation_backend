@@ -1,4 +1,5 @@
-﻿using Aggregation.Backend.Infrastructure.Cache;
+﻿using Aggregation.Backend.Domain.Constants;
+using Aggregation.Backend.Infrastructure.Cache;
 using System.Diagnostics;
 
 namespace Aggregation.Backend.WebApi.Middlewares
@@ -19,7 +20,7 @@ namespace Aggregation.Backend.WebApi.Middlewares
             var stopwatch = Stopwatch.StartNew();
             await _next(context);
             stopwatch.Stop();
-            if (context.Request.Path.ToString().Contains("aggregates"))
+            if (context.Request.Path.ToString().Contains(ApiEndpoints.Aggregates))
                 _performanceStatisticsCache.Record(stopwatch.ElapsedMilliseconds);
         }
     }
