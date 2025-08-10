@@ -2,11 +2,12 @@ using Aggregation.Backend.Application.Extensions;
 using Aggregation.Backend.Infrastructure.Extensions;
 using Aggregation.Backend.WebApi.Extensions;
 using Aggregation.Backend.WebApi.Middlewares;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
+builder.Host.UseSerilog(new LoggerConfiguration().ReadFrom.Configuration(builder.Configuration).CreateLogger());
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
