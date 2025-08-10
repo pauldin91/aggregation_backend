@@ -1,13 +1,13 @@
-﻿using Aggregation.Backend.Infrastructure.Cache;
+﻿using Aggregation.Backend.Domain.Constants;
+using Aggregation.Backend.Infrastructure.Cache;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Aggregation.Backend.WebApi.Controllers
 {
-    [Route("api")]
     [ApiController]
     public class StatisticsController : ControllerBase
     {
-        [HttpGet("stats")]
+        [HttpGet(ApiEndpoints.GetStatisticsRoute)]
         public async Task<IActionResult> GetRequestStatistics()
         {
             return Ok(PerformanceStatisticsCache.GetStats());

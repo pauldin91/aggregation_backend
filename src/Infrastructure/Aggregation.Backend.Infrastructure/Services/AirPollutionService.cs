@@ -1,20 +1,19 @@
 ﻿using Aggregation.Backend.Application.Interfaces;
 using Aggregation.Backend.Domain.Dtos.External.Air;
 using Aggregation.Backend.Infrastructure.Options;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
 namespace Aggregation.Backend.Infrastructure.Services
 {
-    public class AirPollutionService(IHttpClientWrapper<AirPollutionOptions> httpClientWrapper, IConfiguration configuration) : IExternalApiService
+    public class AirPollutionService(IHttpClientWrapper<AirPollutionOptions> httpClientWrapper, IOptions<AirPollutionOptions> options) : IExternalApiService
     {
         private readonly IHttpClientWrapper<AirPollutionOptions> _httpClientWrapper = httpClientWrapper;
-        private readonly AirPollutionOptions options = ConfigurationBinder.Get<AirPollutionOptions>(configuration.GetRequiredSection(typeof(AirPollutionOptions).Name));
 
         public async Task<IList<Dictionary<string, string>>> ListAsync(string category, CancellationToken cancellationToken)
         {
-            var queryString = $"state={category}&country=Greece&key={options.ApiKey}";
-            var relativePath = string.Join("?", options.ListUri, queryString);
+            var queryString = $"state={category}&country=Greece&key={options.Value.ApiKey}";
+            var relativePath = string.Join("?", options.Value.ListUri, queryString);
             var response = await _httpClientWrapper.GetAsync(relativePath, cancellationToken);
 
             if (string.IsNullOrEmpty(response))
@@ -32,8 +31,8 @@ namespace Aggregation.Backend.Infrastructure.Services
                 var cityName = item.City;
                 tasks.Add(Task.Run(async () =>
                 {
-                    var queryStringPerCity = $"city={cityName}&state={category}&country=Greece&key={options.ApiKey}";
-                    var relativePathPerCity = string.Join("?", options.GetUri, queryStringPerCity);
+                    var queryStringPerCity = $"city={cityName}&state={category}&country=Greece&key={options.Value.ApiKey}";
+                    var relativePathPerCity = string.Join("?", options.Value.GetUri, queryStringPerCity);
 
                     var cityResponse = await _httpClientWrapper.GetAsync(relativePathPerCity, cancellationToken);
                     if (string.IsNullOrEmpty(cityResponse))
@@ -47,7 +46,7 @@ namespace Aggregation.Backend.Infrastructure.Services
             }
 
             var results = await Task.WhenAll(tasks);
-            return results.Where(s=>s.Count>0).ToList();
+            return results.Where(s => s.Count > 0).ToList();
         }
     }
 }

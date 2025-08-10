@@ -1,4 +1,6 @@
-﻿namespace Aggregation.Backend.WebApi.Extensions
+﻿using Aggregation.Backend.Domain.Constants;
+
+namespace Aggregation.Backend.WebApi.Extensions
 {
     public static class ServiceCollectionExtensions
     {
@@ -7,9 +9,9 @@
             services.AddOutputCache(s =>
             {
                 s.DefaultExpirationTimeSpan = TimeSpan.FromMinutes(10);
-                s.AddPolicy("AggregatePolicy", builder =>
+                s.AddPolicy(Policies.AggregatesCachePolicy, builder =>
                 {
-                    builder.SetVaryByQuery("keyword", "filter", "orderBy", "asc");
+                    builder.SetVaryByQuery(Policies.KeywordQueryParam, Policies.FilterQueryParam, Policies.SortQueryParam, Policies.SortTypeQueryParam);
                 });
             });
 

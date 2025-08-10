@@ -1,15 +1,21 @@
 ﻿using Aggregation.Backend.Infrastructure.Cache;
+using Aggregation.Backend.Infrastructure.Options;
 using Hangfire;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Aggregation.Backend.Infrastructure.Hosted
 {
-    public class StatisticsAnalyzerService(ILogger<StatisticsAnalyzerService> logger) : IHostedService
+    public class StatisticsAnalyzerService(ILogger<StatisticsAnalyzerService> logger, IOptions<StatisticsAnalyzerServiceOptions> options) : IHostedService
     {
+        private readonly ILogger<StatisticsAnalyzerService> _logger = logger;
+        private readonly IOptions<StatisticsAnalyzerServiceOptions> _options = options;
+
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            RecurringJob.AddOrUpdate(nameof(StatisticsAnalyzerService), () => CollectPerformanceData(), "* * * * *", new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
+                RecurringJob.AddOrUpdate(nameof(StatisticsAnalyzerService), () => CollectPerformanceData(), _options.Value.CronExpression, new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
+            
             return Task.CompletedTask;
         }
 
@@ -23,7 +29,7 @@ namespace Aggregation.Backend.Infrastructure.Hosted
                     var avgPerformance = PerformanceStatisticsCache.AverageResponseTime;
                     if (responseTime.Value > 1.5 * avgPerformance)
                     {
-                        logger.LogWarning("Detected degraded performance of endpoint {Endpoint} with average reponse time  of {EndpointResponseTime} over the last 5 minutes, while average performance is {AvgReponseTime}",
+                        _logger.LogWarning("Detected degraded performance of endpoint {Endpoint} with average reponse time  of {EndpointResponseTime} over the last 5 minutes, while average performance is {AvgReponseTime}",
                             responseTime.Key, responseTime.Value, avgPerformance);
                     }
                 }
@@ -35,6 +41,7 @@ namespace Aggregation.Backend.Infrastructure.Hosted
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
+            RecurringJob.RemoveIfExists(nameof(StatisticsAnalyzerService));
             return Task.CompletedTask;
         }
     }

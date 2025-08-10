@@ -4,23 +4,18 @@ namespace Aggregation.Backend.Infrastructure.Cache
 {
     public class ExternalApiRequestTimingCache
     {
-        private static readonly ConcurrentDictionary<string, List<Tuple<DateTime, long>>> _responseTimes = new();
+        private static readonly ConcurrentDictionary<string, ConcurrentQueue<Tuple<DateTime, long>>> _responseTimes = new();
         private static readonly object _lock = new();
 
         public static void Record(string endpoint, long durationMs)
         {
-            _responseTimes.AddOrUpdate(endpoint,
-                new List<Tuple<DateTime, long>> { Tuple.Create(DateTime.UtcNow, durationMs) },
-                (id, existing) =>
-                {
-                    lock (_lock)
-                    {
-                        existing = existing.Where(s => s.Item1 > DateTime.UtcNow.AddMinutes(-5)).ToList();
-                        existing.Add(Tuple.Create(DateTime.UtcNow, durationMs));
-                        return existing;
-                    }
-                }
-            );
+            var queue = _responseTimes.GetOrAdd(endpoint, _ => new ConcurrentQueue<Tuple<DateTime, long>>());
+            queue.Enqueue(Tuple.Create(DateTime.UtcNow, durationMs));
+
+            while (queue.TryPeek(out var entry) && entry.Item1 < DateTime.UtcNow.AddMinutes(-5))
+            {
+                queue.TryDequeue(out _);
+            }
         }
 
         public static IReadOnlyDictionary<string, long> GetResponseTimes()

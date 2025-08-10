@@ -5,7 +5,6 @@ using Aggregation.Backend.Infrastructure.Services;
 using Hangfire;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Net;
 
 namespace Aggregation.Backend.Infrastructure.Extensions
 {
@@ -16,19 +15,22 @@ namespace Aggregation.Backend.Infrastructure.Extensions
             services.AddHangfire(cfg => { cfg.UseInMemoryStorage(); });
             services.AddHangfireServer();
 
-
             var allOptions = typeof(NewsOptions).Assembly.GetTypes()
                 .Where(s => s.IsAssignableTo(typeof(IHttpClientOptions)))
                 .ToList();
 
             foreach (var type in allOptions)
             {
-                IHttpClientOptions options = (IHttpClientOptions)Activator.CreateInstance(type);
+                var options = (IHttpClientOptions)Activator.CreateInstance(type);
                 configuration.Bind(type.Name, options);
-                var fallbackResponse = new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = new StringContent("")
-                };
+
+                var configureMethod = typeof(OptionsConfigurationServiceCollectionExtensions)
+                    .GetMethods()
+                    .First(m => m.Name == "Configure" && m.GetParameters().Length == 2)
+                    .MakeGenericMethod(type);
+
+                configureMethod.Invoke(null, new object[]{ services, configuration.GetSection(type.Name) });
+
 
                 services.AddHttpClient(type.Name, client =>
                 {
@@ -40,6 +42,7 @@ namespace Aggregation.Backend.Infrastructure.Extensions
 
                 services.Add(new ServiceDescriptor(ifc, impl, ServiceLifetime.Singleton));
             }
+            services.Configure<StatisticsAnalyzerServiceOptions>(configuration.GetSection(nameof(StatisticsAnalyzerServiceOptions)));
             services.AddTransient<IExternalApiService, NewsService>();
             services.AddTransient<IExternalApiService, AirPollutionService>();
             services.AddTransient<IExternalApiService, StockMarketFeedService>();
