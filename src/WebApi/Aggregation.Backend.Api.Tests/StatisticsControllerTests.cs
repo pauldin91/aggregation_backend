@@ -1,18 +1,30 @@
 ﻿using Aggregation.Backend.Domain.Constants;
 using Aggregation.Backend.Domain.Dtos.Statistics;
 using Aggregation.Backend.Infrastructure.Cache;
+using Aggregation.Backend.Infrastructure.Options;
 using Aggregation.Backend.WebApi.Controllers;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using Moq;
 
 public class StatisticsControllerTests
 {
     private StatisticsController _controller = null!;
     private PerformanceStatisticsCache _cache = null!;
+    private Mock<IOptions<BucketOptions>> _optionsMock = null;
+
 
     public StatisticsControllerTests()
     {
-        _cache = new PerformanceStatisticsCache();
+        var bucketOptions = new BucketOptions
+        {
+            FastUpperLimit = 100,
+            AverageUpperLimit = 200
+        };
 
+        _optionsMock = new Mock<IOptions<BucketOptions>>();
+        _optionsMock.Setup(o => o.Value).Returns(bucketOptions);
+        _cache = new PerformanceStatisticsCache(_optionsMock.Object);
 
         _controller = new StatisticsController(_cache);
         _cache.Record(50);

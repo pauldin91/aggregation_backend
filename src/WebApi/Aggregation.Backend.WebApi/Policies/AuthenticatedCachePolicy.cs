@@ -12,7 +12,6 @@ namespace Aggregation.Backend.WebApi.Policies
     {
         public ValueTask CacheRequestAsync(OutputCacheContext context, CancellationToken cancellation) { 
             var token = context.HttpContext.Request.Headers["Authorization"].ToString().Split(' ');
-            var isValid = ValidateToken(token[1]).Result;
             if (token.Length == 2 ) 
             {
                 context.EnableOutputCaching = true;
