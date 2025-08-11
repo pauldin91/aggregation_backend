@@ -23,6 +23,7 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
+app.UseOutputCache();
 
 app.UseMiddleware<RequestAnalyticsMiddleware>();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
@@ -32,7 +33,6 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseOutputCache();
 app.MapControllers();
 
 app.Run();

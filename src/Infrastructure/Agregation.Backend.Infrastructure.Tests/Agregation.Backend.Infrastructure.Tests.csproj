@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\Infrastructure\Aggregation.Backend.Infrastructure\Aggregation.Backend.Infrastructure.csproj" />
+    <ProjectReference Include="..\Aggregation.Backend.Infrastructure\Aggregation.Backend.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
