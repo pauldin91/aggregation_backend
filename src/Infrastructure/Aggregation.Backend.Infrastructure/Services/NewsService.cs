@@ -8,13 +8,12 @@ namespace Aggregation.Backend.Infrastructure.Services
 {
     public class NewsService(IHttpClientWrapper<NewsOptions> httpClientWrapper, IOptions<NewsOptions> options) : IExternalApiService
     {
-        private readonly IHttpClientWrapper<NewsOptions> _httpClientWrapper = httpClientWrapper;
 
         public async Task<IList<Dictionary<string, object>>> ListAsync(string category, CancellationToken cancellationToken)
         {
             var queryString = $"q={category}&page=1&pageSize=100&apiKey={options.Value.ApiKey}";
             var relativePath = string.Join("?", options.Value.ListUri, queryString);
-            var response = await _httpClientWrapper.GetAsync(relativePath, cancellationToken);
+            var response = await httpClientWrapper.GetAsync(relativePath, cancellationToken);
             if (string.IsNullOrEmpty(response))
             {
                 return [];

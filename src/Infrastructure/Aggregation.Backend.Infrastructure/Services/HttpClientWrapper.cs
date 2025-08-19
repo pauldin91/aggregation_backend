@@ -11,7 +11,6 @@ namespace Aggregation.Backend.Infrastructure.Services
     {
         private readonly HttpClient _httpClient = httpClientFactory.CreateClient(typeof(T).Name);
         private static AsyncPolicy<HttpResponseMessage> combinedPolicy = FallbackPolicy();
-        private readonly  ExternalApiRequestTimingCache _externalApiRequestTimingCache = externalApiRequestTimingCache;
 
         public async Task<string> GetAsync(string uri, CancellationToken cancellationToken)
         {
@@ -22,7 +21,7 @@ namespace Aggregation.Backend.Infrastructure.Services
             var response = await combinedPolicy.ExecuteAsync(() => _httpClient.SendAsync(request, cancellationToken));
 
             stopwatch.Stop();
-            _externalApiRequestTimingCache.Record(_httpClient?.BaseAddress?.ToString(), stopwatch.ElapsedMilliseconds);
+            externalApiRequestTimingCache.Record(_httpClient?.BaseAddress?.ToString(), stopwatch.ElapsedMilliseconds);
 
             var content = await response.Content.ReadAsStringAsync();
 

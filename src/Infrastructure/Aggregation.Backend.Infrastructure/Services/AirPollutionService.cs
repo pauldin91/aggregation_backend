@@ -8,13 +8,12 @@ namespace Aggregation.Backend.Infrastructure.Services
 {
     public class AirPollutionService(IHttpClientWrapper<AirPollutionOptions> httpClientWrapper, IOptions<AirPollutionOptions> options) : IExternalApiService
     {
-        private readonly IHttpClientWrapper<AirPollutionOptions> _httpClientWrapper = httpClientWrapper;
 
         public async Task<IList<Dictionary<string, object>>> ListAsync(string category, CancellationToken cancellationToken)
         {
             var queryString = $"state={category}&country=Greece&key={options.Value.ApiKey}";
             var relativePath = string.Join("?", options.Value.ListUri, queryString);
-            var response = await _httpClientWrapper.GetAsync(relativePath, cancellationToken);
+            var response = await httpClientWrapper.GetAsync(relativePath, cancellationToken);
 
             if (string.IsNullOrEmpty(response))
             {
@@ -22,8 +21,6 @@ namespace Aggregation.Backend.Infrastructure.Services
             }
 
             var cities = JsonConvert.DeserializeObject<CitiesDto>(response);
-
-            var json = JsonConvert.SerializeObject(cities?.Cities ?? new List<NameOnlyDto>());
 
             var tasks = new List<Task<Dictionary<string, object>>>();
             foreach (var item in cities?.Cities ?? Enumerable.Empty<NameOnlyDto>())
@@ -34,7 +31,7 @@ namespace Aggregation.Backend.Infrastructure.Services
                     var queryStringPerCity = $"city={cityName}&state={category}&country=Greece&key={options.Value.ApiKey}";
                     var relativePathPerCity = string.Join("?", options.Value.GetUri, queryStringPerCity);
 
-                    var cityResponse = await _httpClientWrapper.GetAsync(relativePathPerCity, cancellationToken);
+                    var cityResponse = await httpClientWrapper.GetAsync(relativePathPerCity, cancellationToken);
                     if (string.IsNullOrEmpty(cityResponse))
                     {
                         return new Dictionary<string, object>();

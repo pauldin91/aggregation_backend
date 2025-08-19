@@ -9,13 +9,10 @@ namespace Aggregation.Backend.Infrastructure.Hosted
 {
     public class StatisticsAnalyzerService(ILogger<StatisticsAnalyzerService> logger, IOptions<StatisticsAnalyzerServiceOptions> options, ExternalApiRequestTimingCache externalApiRequestTimingCache) : IHostedService
     {
-        private readonly ILogger<StatisticsAnalyzerService> _logger = logger;
-        private readonly IOptions<StatisticsAnalyzerServiceOptions> _options = options;
-        private readonly ExternalApiRequestTimingCache _externalApiRequestTimingCache = externalApiRequestTimingCache;
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            RecurringJob.AddOrUpdate(nameof(StatisticsAnalyzerService), () => CollectPerformanceData(), _options.Value.CronExpression, new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
+            RecurringJob.AddOrUpdate(nameof(StatisticsAnalyzerService), () => CollectPerformanceData(), options.Value.CronExpression, new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
 
             return Task.CompletedTask;
         }
@@ -24,13 +21,13 @@ namespace Aggregation.Backend.Infrastructure.Hosted
         {
             try
             {
-                var responseTimes = _externalApiRequestTimingCache.GetResponseTimes();
+                var responseTimes = externalApiRequestTimingCache.GetResponseTimes();
                 foreach (var responseTime in responseTimes)
                 {
                     var avgPerformance = PerformanceStatisticsCache.AverageResponseTime;
                     if (responseTime.Value > 1.5 * avgPerformance)
                     {
-                        _logger.LogWarning("Detected degraded performance of endpoint {Endpoint} with average reponse time  of {EndpointResponseTime} over the last 5 minutes, while average performance is {AvgReponseTime}",
+                        logger.LogWarning("Detected degraded performance of endpoint {Endpoint} with average reponse time  of {EndpointResponseTime} over the last 5 minutes, while average performance is {AvgReponseTime}",
                             responseTime.Key, responseTime.Value, avgPerformance);
                     }
                 }

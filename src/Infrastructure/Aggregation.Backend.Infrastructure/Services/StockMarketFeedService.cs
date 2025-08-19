@@ -8,13 +8,12 @@ namespace Aggregation.Backend.Infrastructure.Services
 {
     public class StockMarketFeedService(IHttpClientWrapper<StockMarketFeedOptions> httpClientWrapper, IOptions<StockMarketFeedOptions> options) : IExternalApiService
     {
-        private readonly IHttpClientWrapper<StockMarketFeedOptions> _httpClientWrapper = httpClientWrapper;
 
         public async Task<IList<Dictionary<string, object>>> ListAsync(string category, CancellationToken cancellationToken)
         {
             var queryString = $"function=NEWS_SENTIMENT&tickers={category}&apikey={options.Value.ApiKey}";
             var relativePath = string.Join("?", options.Value.ListUri, queryString);
-            var response = await _httpClientWrapper.GetAsync(relativePath, cancellationToken);
+            var response = await httpClientWrapper.GetAsync(relativePath, cancellationToken);
             var infoDto = JsonConvert.DeserializeObject<InfoDto>(response);
             if (string.IsNullOrEmpty(response) || ( infoDto?.Information is not null) )
             {
