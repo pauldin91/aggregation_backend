@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace Aggregation.Backend.Infrastructure.Services
 {
-    public class NewsService(IHttpClientWrapper<NewsOptions> httpClientWrapper, IOptions<NewsOptions> options) : IExternalApiService
+    public class NewsService(IHttpClientWrapper<NewsOptions> httpClientWrapper, IOptions<NewsOptions> options) : INewsService
     {
 
         public async Task<IList<Dictionary<string, object>>> ListAsync(string category, CancellationToken cancellationToken)

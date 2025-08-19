@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace Aggregation.Backend.Infrastructure.Services
 {
-    public class AirPollutionService(IHttpClientWrapper<AirPollutionOptions> httpClientWrapper, IOptions<AirPollutionOptions> options) : IExternalApiService
+    public class AirPollutionService(IHttpClientWrapper<AirPollutionOptions> httpClientWrapper, IOptions<AirPollutionOptions> options) : IAirPollutionService
     {
 
         public async Task<IList<Dictionary<string, object>>> ListAsync(string category, CancellationToken cancellationToken)

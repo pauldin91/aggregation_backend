@@ -93,9 +93,9 @@ namespace Aggregation.Backend.Infrastructure.Extensions
             services.Configure<StatisticsAnalyzerServiceOptions>(configuration.GetSection(nameof(StatisticsAnalyzerServiceOptions)));
             services.Configure<JwtOptions>(configuration.GetSection(nameof(JwtOptions)));
             services.Configure<BucketOptions>(configuration.GetSection(nameof(BucketOptions)));
-            services.AddTransient<IExternalApiService, NewsService>();
-            services.AddTransient<IExternalApiService, AirPollutionService>();
-            services.AddTransient<IExternalApiService, StockMarketFeedService>();
+            services.AddTransient<INewsService, NewsService>();
+            services.AddTransient<IAirPollutionService, AirPollutionService>();
+            services.AddTransient<IStockMarketFeedService, StockMarketFeedService>();
             services.AddHostedService<StatisticsAnalyzerService>();
             services.AddScoped<TokenGenerator>();
             services.AddSingleton<ExternalApiRequestTimingCache>();

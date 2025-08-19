@@ -3,16 +3,16 @@ using MediatR;
 
 namespace Aggregation.Backend.Application.Features.Aggregates
 {
-    public class AggregatesQueryHandler(IEnumerable<IExternalApiService> services) : IRequestHandler<AggregatesQuery, IList<Dictionary<string, object>>>
+    public class AggregatesQueryHandler(IAirPollutionService airPollutionService,INewsService newsService,IStockMarketFeedService stockMarketFeedService) : IRequestHandler<AggregatesQuery, IList<Dictionary<string, object>>>
     {
         public async Task<IList<Dictionary<string, object>>> Handle(AggregatesQuery request, CancellationToken cancellationToken)
         {
-            var tasks = new List<Task<IList<Dictionary<string, object>>>>();
-
-            foreach (var service in services)
-            {
-                tasks.Add(service.ListAsync(request.Category, cancellationToken));
-            }
+            var tasks = new List<Task<IList<Dictionary<string, object>>>> {
+                airPollutionService.ListAsync(request.Category, cancellationToken),
+                newsService.ListAsync(request.Category, cancellationToken),
+                stockMarketFeedService.ListAsync(request.Category, cancellationToken) 
+            };
+            
 
             var taskResults = await Task.WhenAll(tasks);
 

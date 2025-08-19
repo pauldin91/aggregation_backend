@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace Aggregation.Backend.Infrastructure.Services
 {
-    public class StockMarketFeedService(IHttpClientWrapper<StockMarketFeedOptions> httpClientWrapper, IOptions<StockMarketFeedOptions> options) : IExternalApiService
+    public class StockMarketFeedService(IHttpClientWrapper<StockMarketFeedOptions> httpClientWrapper, IOptions<StockMarketFeedOptions> options) : IStockMarketFeedService
     {
 
         public async Task<IList<Dictionary<string, object>>> ListAsync(string category, CancellationToken cancellationToken)
